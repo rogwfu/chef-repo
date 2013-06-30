@@ -144,6 +144,7 @@ GEM
     varia_model (0.1.0)
       buff-extensions (~> 0.1)
       hashie (>= 2.0.2)
+    veewee-to-packer (0.1.2)
     wasabi (1.0.0)
       nokogiri (>= 1.4.0)
     winrm (1.1.2)
@@ -162,3 +163,4 @@ PLATFORMS
 DEPENDENCIES
   berkshelf (~> 2.0.5)
   chef (~> 11.4.4)
+  veewee-to-packer (~> 0.1.2)
