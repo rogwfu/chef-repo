@@ -18,7 +18,7 @@ This repository contains several directories, and each directory contains a READ
 
 Environment
 ==========
-This repository contains a .rvmrc to manage Ruby (2.0.0-p0) and creates a gemset named Chef.  RVM then checks the Gemfile and installs all the required gems in the chef gemset.  The .rvmrc must be trusted for rvm to switch environments and install all dependencies automatically.
+It is recommended to have homebrew install (http://mxcl.github.io/homebrew/) as well as RVM (http://rvm.io/).  If these packages are installed and the .rvmrc is trusted, then the environment will be automatically installed and configured.  This repository contains a .rvmrc to manage Ruby (2.0.0-p0) and creates a gemset named Chef.  RVM then checks the Gemfile and installs all the required gems in the chef gemset.  The .rvmrc must be trusted for rvm to switch environments and install all dependencies automatically.
 
 Rake Tasks
 ==========
