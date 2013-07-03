@@ -16,6 +16,10 @@ This repository contains several directories, and each directory contains a READ
 * `data_bags/` - Store data bags and items in .json in the repository.
 * `roles/` - Store roles in .rb or .json in the repository.
 
+Environment
+==========
+This repository contains a .rvmrc to manage Ruby (2.0.0-p0) and creates a gemset named Chef.  RVM then checks the Gemfile and installs all the required gems in the chef gemset.  The .rvmrc must be trusted for rvm to switch environments and install all dependencies automatically.
+
 Rake Tasks
 ==========
 
