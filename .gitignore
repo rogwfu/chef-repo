@@ -17,3 +17,8 @@ packer/machines
 # Random File
 # 
 0
+
+###
+# Ignore dotfiles
+#
+*.swp
