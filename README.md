@@ -14,6 +14,7 @@ This repository contains several directories, and each directory contains a READ
 * `config/` - Contains the Rake configuration file, `rake.rb`.
 * `cookbooks/` - Cookbooks you download or create.
 * `data_bags/` - Store data bags and items in .json in the repository.
+* `packer/` - Stores templates for new machines to work with the tool packer. 
 * `roles/` - Store roles in .rb or .json in the repository.
 
 Environment

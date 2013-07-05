@@ -1,0 +1,48 @@
+{
+  "builders": [
+    {
+      "type": "vmware",
+      "iso_url": "http://rtp-linux/ubuntu-releases/12.04.2/ubuntu-12.04.2-server-amd64.iso",
+      "iso_md5": "af5f788aee1b32c4b2634734309cc9e9",
+      "boot_wait": "4s",
+      "disk_size": 65536,
+      "guest_os_type": "ubuntu-64",
+      "ssh_username": "%%USERNAME%%",
+      "ssh_password": "%%PASSWORD%%",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "10000s",
+      "output_directory": "./machines",
+      "boot_command": [
+                        "<esc><esc><enter><wait>",
+                        "/install/vmlinuz noapic <wait>",
+                        "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ubuntu-server-12.04.2-preseed.cfg <wait>",
+                        "debian-installer=en_US auto locale=en_US kbd-chooser/method=us <wait>",
+                        "hostname={{ .Name }} <wait>",
+                        "fb=false debconf/frontend=noninteractive <wait>",
+                        "keyboard-configuration/modelcode=SKIP keyboard-configuration/layout=USA <wait>",
+                        "keyboard-configuration/variant=USA console-setup/ask_detect=false <wait>",
+                        "initrd=/install/initrd.gz -- <enter><wait>"
+                      ],
+      "vmx_data": {
+        "memsize": "2048",
+        "numvcpus": "1",
+        "cpuid.coresPerSocket": "1"
+      }
+    }
+  ],
+  "provisioners": [
+  {
+    "type": "shell",
+    "scripts": [
+      "scripts/apt.sh",
+      "scripts/sudo.sh"
+    ],
+      "override": {
+        "vmware": {
+          "execute_command": "echo '%%PASSWORD%%'|sudo -S sh '{{.Path}}'"
+        }
+      }
+  }
+  ],
+  "post-processors": ["vagrant"]
+}

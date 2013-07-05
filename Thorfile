@@ -8,6 +8,14 @@ class Packer < Thor
 # FIXME: https://github.com/erikhuda/thor/blob/master/Thorfile
 #  include Thor::RakeCompat
 #  Bundler::GemHelper.install_tasks
+   include Thor::Actions
+
+     def self.source_root
+         File.dirname(__FILE__)
+           end
+   def source_paths
+    ["packer/templates"]
+   end
 
     # http://www.packer.io/docs/command-line/build.html
     desc "build", "Build with packer"
@@ -15,8 +23,14 @@ class Packer < Thor
     method_option :except, :desc => " Builds all the builds except those with the given comma-separated names.", :type => :string
     method_option :only, :desc => "Only build the builds with the given comma-separated names.", :type => :string
     method_option :template, :desc => "The template file to build.", :type => :string, :required => true
+    method_option :username, :desc => "Username to use for the machine", :type => :string, :default => "user"
+    method_option :password, :desc => "Password to use for the machine", :type => :string, :default => "password"
     def build 
-      puts "Hey" 
+      # Replace usernames and passwords
+      subs = ["#{options[:template]}/template.json", "#{options[:template]}/preseed.cfg"]
+      fix_auth(subs, {"%%USERNAME%%" => options[:username], "%%PASSWORD%%" => options[:password]})
+      exec "packer build packer/templates/#{options[:template]}/template.json" 
+      restore_files(subs)
     end
 
     desc "convert", "Convert a veewee template to a packer one"
@@ -32,8 +46,8 @@ class Packer < Thor
       # Call validation?
     end
 
-    desc "find", "Search for a veewee template"
-    method_option :machine, :desc => "A search term to find in the list of veewee templates.", :type => :string, :required => true
+    desc "find", "Search for packer templates"
+    method_option :machine, :desc => "A search term to find in the list of packer templates.", :type => :string, :required => true
     def find
       veeweeTemplates = Dir.glob("packer/templates/*#{options[:machine]}*")
       veeweeTemplates.each do |template|
@@ -41,7 +55,7 @@ class Packer < Thor
       end
     end
 
-    desc "list", "List all of the possible Veewee templates to convert"
+    desc "list", "List all of the possible packer templates to convert"
     def list 
       veeweeTemplates = Dir.glob("packer/templates/*")
       # FIXME: Should be more elegant than this, quick fix
@@ -50,12 +64,32 @@ class Packer < Thor
       end
     end
 
-
     # http://www.packer.io/docs/command-line/validate.html
     desc "validate", "Validate a packer config"
     method_option :syntax, :desc => "Only the syntax of the template is checked. The configuration is not validated.", :type => :boolean, :default => false
     method_option :template, :desc => "The template file validate.", :type => :string, :required => true
     def validate 
       puts "Hey" 
+    end
+
+    no_tasks do
+      # FIXME: Add comments
+      def fix_auth(files, subs) 
+#       FIXME: Add error checks for file existence
+       files.each do |filename|
+          copy_file filename, "#{source_paths[0]}/#{filename}.bk" 
+          subs.each do |key, value|
+            gsub_file("#{source_paths[0]}/#{filename}", key, value)
+          end
+       end
+      end
+
+      # FIXME: Add comments
+      def restore_files(subs)
+        subs.each do |filename|
+          copy_file "#{source_paths[0]}/#{filename}.bk", "#{source_paths[0]}/#{filename}"
+          remove_file "##{source_paths[0]}/{filename}.bk"
+        end
+      end
     end
 end
