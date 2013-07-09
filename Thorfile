@@ -11,11 +11,8 @@ class Packer < Thor
    include Thor::Actions
 
      def self.source_root
-         File.dirname(__FILE__)
-           end
-   def source_paths
-    ["packer/templates"]
-   end
+         File.dirname(__FILE__) + "/packer/templates"
+    end
 
     # http://www.packer.io/docs/command-line/build.html
     desc "build", "Build with packer"
@@ -27,9 +24,9 @@ class Packer < Thor
     method_option :password, :desc => "Password to use for the machine", :type => :string, :default => "password"
     def build 
       # Replace usernames and passwords
-      subs = ["#{options[:template]}/template.json", "#{options[:template]}/preseed.cfg"]
-      fix_auth(subs, {"%%USERNAME%%" => options[:username], "%%PASSWORD%%" => options[:password]})
-      exec "packer build packer/templates/#{options[:template]}/template.json" 
+      subs = find_subs([ "#{source_paths[0]}/#{options[:template]}", "#{source_paths[0]}/#{options[:template]}/scripts"])
+      sub_variables(subs, {"%%USERNAME%%" => options[:username], "%%PASSWORD%%" => options[:password]})
+      run("cd packer/templates/#{options[:template]} ; packer build template.json") 
       restore_files(subs)
     end
 
@@ -73,13 +70,29 @@ class Packer < Thor
     end
 
     no_tasks do
+
       # FIXME: Add comments
-      def fix_auth(files, subs) 
+      def find_subs(directories)
+      script_subs = []
+        directories.each do |directory| 
+          Dir.foreach(directory) do |file|
+            next if file == '.' or file == '..' or File.directory?("#{directory}/#{file}")
+              if File.readlines("#{directory}/#{file}").grep(/%%/).any?
+                script_subs << "#{directory}/#{file}"
+              end
+          end
+        end
+
+        return(script_subs)
+      end
+
+      # FIXME: Add comments
+      def sub_variables(files, subs) 
 #       FIXME: Add error checks for file existence
        files.each do |filename|
-          copy_file filename, "#{source_paths[0]}/#{filename}.bk" 
+          copy_file(filename, "#{filename}.bk", {:verbose => false}) 
           subs.each do |key, value|
-            gsub_file("#{source_paths[0]}/#{filename}", key, value)
+            gsub_file(filename, key, value)
           end
        end
       end
@@ -87,8 +100,8 @@ class Packer < Thor
       # FIXME: Add comments
       def restore_files(subs)
         subs.each do |filename|
-          copy_file "#{source_paths[0]}/#{filename}.bk", "#{source_paths[0]}/#{filename}"
-          remove_file "##{source_paths[0]}/{filename}.bk"
+          copy_file("#{filename}.bk", filename, {:force => true, :verbose => false})
+          remove_file("#{filename}.bk", {:verbose => false})
         end
       end
     end

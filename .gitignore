@@ -4,6 +4,7 @@
 # Ignore Chef key files and secrets
 ###
 .chef/*.pem
+.chef/rake.rb
 .chef/encrypted_data_bag_secret
 .chef/knife.rb
 
@@ -22,3 +23,10 @@ packer/machines
 # Ignore dotfiles
 #
 *.swp
+.kitchen
+
+##
+# Packer ignores
+#
+packer/output
+packer_cache
