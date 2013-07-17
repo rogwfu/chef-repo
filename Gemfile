@@ -14,3 +14,6 @@ gem "knife-esx", "~> 0.3.3"
 
 # Reference: https://github.com/opscode/test-kitchen
 gem 'test-kitchen', '~> 1.0.0.alpha'
+
+# Reference: https://github.com/bensie/sshkey 
+gem 'sshkey', '~> 1.5.1'
