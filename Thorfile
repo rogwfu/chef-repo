@@ -3,6 +3,8 @@
 require 'bundler'
 require 'bundler/setup'
 require 'berkshelf/thor'
+require 'sshkey'
+require 'highline/import'
 
 class Packer < Thor
 # FIXME: https://github.com/erikhuda/thor/blob/master/Thorfile
@@ -11,22 +13,35 @@ class Packer < Thor
    include Thor::Actions
 
      def self.source_root
-         File.dirname(__FILE__) + "/packer/templates"
+         File.dirname(__FILE__) + "/packer"
     end
 
     # http://www.packer.io/docs/command-line/build.html
     desc "build", "Build with packer"
     method_option :debug, :desc => "Disables parallelization and enables debug mode.", :type => :boolean, :default => false
-    method_option :except, :desc => " Builds all the builds except those with the given comma-separated names.", :type => :string
-    method_option :only, :desc => "Only build the builds with the given comma-separated names.", :type => :string
+    method_option :except, :desc => " Builds all the builds except those with the given comma-separated names.", :type => :string, :default => ""
+    method_option :only, :desc => "Only build the builds with the given comma-separated names.", :type => :string, :default => ""
     method_option :template, :desc => "The template file to build.", :type => :string, :required => true
     method_option :username, :desc => "Username to use for the machine", :type => :string, :default => "user"
-    method_option :password, :desc => "Password to use for the machine", :type => :string, :default => "password"
+    method_option :password, :desc => "Password to use for the machine", :type => :string, :default => "pass"
+    method_option :sshkey, :desc => "SSH key to use for vagrant machine", :type => :string, :default => "vagrant"
+    method_option :sshpassphrase, :desc => "Set a passphrase for the sskey", :type => :boolean, :default => false 
     def build 
+       packerArgs = ""
+      # Generate new ssh-key
+      gen_ssh_key("#{source_paths[0]}/ssh-keys/#{options[:sshkey]}", options[:sshpassphrase])
+
       # Replace usernames and passwords
-      subs = find_subs([ "#{source_paths[0]}/#{options[:template]}", "#{source_paths[0]}/#{options[:template]}/scripts"])
-      sub_variables(subs, {"%%USERNAME%%" => options[:username], "%%PASSWORD%%" => options[:password]})
-      run("cd packer/templates/#{options[:template]} ; packer build template.json") 
+      subs = find_subs([ "#{source_paths[0]}/templates/#{options[:template]}", "#{source_paths[0]}/templates/#{options[:template]}/scripts"])
+      sub_variables(subs, {"%%USERNAME%%" => options[:username], "%%PASSWORD%%" => options[:password], "%%SSHKEY%%" => "#{source_paths[0]}/ssh-keys/#{options[:sshkey]}.pub"})
+
+      packerArgs += " --only=#{options[:only]}" if !options[:only].empty?
+      packerArgs +=" --except=#{options[:except]}" if !options[:except].empty?
+
+      # Generate the Vagrant machine
+      run("cd packer/templates/#{options[:template]} ; packer build #{packerArgs} template.json")
+
+      # Restore substituted files
       restore_files(subs)
     end
 
@@ -70,6 +85,35 @@ class Packer < Thor
     end
 
     no_tasks do
+
+      # Prompt the user for their password
+      # @returns [String] Password entered by the user
+      def prompt_password(prompt="Password: ")
+        password = ::HighLine.ask(prompt) do |cli|
+          cli.echo = "*"
+        end
+        return(password)
+      end
+
+      # FIXME: Add comments, need to refactor
+      def gen_ssh_key(sshkey, passphrase)
+          if !File.exists?(sshkey + ".pub") then
+            if(passphrase) then
+              key = SSHKey.generate(:type => "RSA", :bits => 2048, :passphrase => prompt_password())
+              
+              # Write the private key to the file system
+              File.open(sshkey, "w") { |f| f.write(key.encrypted_private_key) }
+            else
+              key = SSHKey.generate(:type => "RSA", :bits => 2048)
+            
+              # Write the private key to the file system
+              File.open(sshkey, "w") { |f| f.write(key.private_key) }
+            end
+
+            # Write the public key to the file system
+            File.open(sshkey + ".pub", "w") { |f| f.write(key.ssh_public_key) }
+          end
+      end
 
       # FIXME: Add comments
       def find_subs(directories)

@@ -2,8 +2,9 @@
   "builders": [
     {
       "type": "vmware",
-      "iso_url": "http://rtp-linux/ubuntu-releases/12.04.2/ubuntu-12.04.2-server-amd64.iso",
-      "iso_md5": "af5f788aee1b32c4b2634734309cc9e9",
+      "iso_url": "http://releases.ubuntu.mirrors.uk2.net//precise/ubuntu-12.04.2-server-amd64.iso",
+      "iso_checksum": "af5f788aee1b32c4b2634734309cc9e9",
+      "iso_checksum_type": "md5",
       "boot_wait": "4s",
       "disk_size": 65536,
       "guest_os_type": "ubuntu-64",
@@ -30,13 +31,16 @@
         "memsize": "2048",
         "numvcpus": "1",
         "cpuid.coresPerSocket": "1"
-      }
+      },
+      "tools_upload_flavor": "linux",
+      "tools_upload_path": "/tmp/VMWareTools.iso"
     },
     {
       "type": "virtualbox",
       "guest_os_type": "Ubuntu_64",
       "iso_url": "http://rtp-linux/ubuntu-releases/12.04.2/ubuntu-12.04.2-server-amd64.iso",
-      "iso_md5": "af5f788aee1b32c4b2634734309cc9e9",
+      "iso_checksum": "af5f788aee1b32c4b2634734309cc9e9",
+      "iso_checksum_type": "md5",
       "boot_wait": "4s",
       "disk_size": 65536,
       "ssh_username": "%%USERNAME%%",
@@ -62,10 +66,16 @@
       "vboxmanage": [
                       ["modifyvm", "{{.Name}}", "--memory", "1024"],
                       ["modifyvm", "{{.Name}}", "--cpus", "2"]
-                    ]
+                    ],
+      "guest_additions_path": "/tmp/VBoxGuestAdditions.iso"
     }
   ],
   "provisioners": [
+  {
+    "type": "file",
+    "source": "%%SSHKEY%%",
+    "destination": "/tmp/sshkeypub"
+  },
   {
     "type": "shell",
     "scripts": [
@@ -73,14 +83,16 @@
       "scripts/sudo.sh",
       "scripts/ruby.sh",
       "scripts/chef.sh",
+      "scripts/vagrant.sh",
+      "scripts/guest-additions.sh",
       "scripts/cleanup.sh"
     ],
       "override": {
         "vmware": {
-          "execute_command": "echo '%%PASSWORD%%'|sudo -S sh '{{.Path}}'"
+          "execute_command": "echo '%%PASSWORD%%'|sudo -S bash '{{.Path}}'"
         },
         "virtualbox": {
-          "execute_command": "echo '%%PASSWORD%%'|sudo -S sh '{{.Path}}'"
+          "execute_command": "echo '%%PASSWORD%%'|sudo -S bash '{{.Path}}'"
         }
       }
   }

@@ -1,3 +1,4 @@
+set -x
 groupadd -r admin
 usermod -a -G admin %%USERNAME%% 
 cp /etc/sudoers /etc/sudoers.orig
