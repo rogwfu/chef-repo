@@ -22,8 +22,8 @@ class Packer < Thor
     method_option :except, :desc => " Builds all the builds except those with the given comma-separated names.", :type => :string, :default => ""
     method_option :only, :desc => "Only build the builds with the given comma-separated names.", :type => :string, :default => ""
     method_option :template, :desc => "The template file to build.", :type => :string, :required => true
-    method_option :username, :desc => "Username to use for the machine", :type => :string, :default => "user"
-    method_option :password, :desc => "Password to use for the machine", :type => :string, :default => "pass"
+    method_option :username, :desc => "Username to use for the machine", :type => :string, :default => "vagrant"
+    method_option :password, :desc => "Password to use for the machine", :type => :string, :default => "vagrant"
     method_option :sshkey, :desc => "SSH key to use for vagrant machine", :type => :string, :default => "vagrant"
     method_option :sshpassphrase, :desc => "Set a passphrase for the sskey", :type => :boolean, :default => false 
     def build 
