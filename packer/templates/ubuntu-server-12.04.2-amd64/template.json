@@ -2,9 +2,9 @@
   "builders": [
     {
       "type": "vmware",
-      "iso_url": "http://releases.ubuntu.mirrors.uk2.net//precise/ubuntu-12.04.2-server-amd64.iso",
-      "iso_checksum": "af5f788aee1b32c4b2634734309cc9e9",
+      "iso_url": "http://rtp-linux/ubuntu-releases/12.04.2/ubuntu-12.04.2-server-amd64.iso",
       "iso_checksum_type": "md5",
+      "iso_checksum": "af5f788aee1b32c4b2634734309cc9e9",
       "boot_wait": "4s",
       "disk_size": 65536,
       "guest_os_type": "ubuntu-64",
@@ -39,8 +39,8 @@
       "type": "virtualbox",
       "guest_os_type": "Ubuntu_64",
       "iso_url": "http://rtp-linux/ubuntu-releases/12.04.2/ubuntu-12.04.2-server-amd64.iso",
-      "iso_checksum": "af5f788aee1b32c4b2634734309cc9e9",
       "iso_checksum_type": "md5",
+      "iso_checksum": "af5f788aee1b32c4b2634734309cc9e9",
       "boot_wait": "4s",
       "disk_size": 65536,
       "ssh_username": "%%USERNAME%%",
@@ -98,6 +98,6 @@
   }
   ],
   "post-processors": [
-                        {"type":"vagrant", "keep_input_artifact": false, "output":"ubuntu-server-12.04.2-amd64-{{.Provider}}.box"}
+                        {"type":"vagrant", "keep_input_artifact": false, "output":"../../../boxes/ubuntu-server-12.04.2-amd64-{{.Provider}}.box"}
                      ]
 }
