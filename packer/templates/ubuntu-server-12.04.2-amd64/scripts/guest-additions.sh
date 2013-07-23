@@ -18,7 +18,10 @@ vmware() {
 # Install the virtualbox tools
 virtualbox() {
   echo "Found VirtualBox tools to install..."
-  mv $VBOX_TOOLS "/home/%%USERNAME%%/vboxadditions.iso"
+  mkdir /mnt/cdrom
+  mount $VBOX_TOOLS /mnt/cdrom
+  /mnt/cdrom/VBoxLinuxAdditions.run
+  umount /mnt/cdrom
 }
 
 if [[ -f $VMWARE_TOOLS ]]  ; then
