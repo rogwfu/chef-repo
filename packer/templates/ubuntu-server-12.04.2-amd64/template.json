@@ -32,6 +32,7 @@
         "numvcpus": "1",
         "cpuid.coresPerSocket": "1"
       },
+      "shutdown_command": "echo '%%PASSWORD%%' | sudo -S shutdown -P now",
       "tools_upload_flavor": "linux",
       "tools_upload_path": "/tmp/VMWareTools.iso"
     },
@@ -67,7 +68,8 @@
                       ["modifyvm", "{{.Name}}", "--memory", "1024"],
                       ["modifyvm", "{{.Name}}", "--cpus", "2"]
                     ],
-      "guest_additions_path": "/tmp/VBoxGuestAdditions.iso"
+      "guest_additions_path": "/tmp/VBoxGuestAdditions.iso",
+      "shutdown_command": "echo '%%PASSWORD%%' | sudo -S shutdown -P now"
     }
   ],
   "provisioners": [

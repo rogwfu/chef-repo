@@ -6,6 +6,13 @@ VBOX_TOOLS="/tmp/VBoxGuestAdditions.iso"
 vmware() {
   echo "Found VMWare tools to install..."
   mv $VMWARE_TOOLS "/home/%%USERNAME%%/vmwaretools.iso"
+   mkdir /mnt/cdrom
+   mount vmwaretools.iso /mnt/cdrom/
+   mkdir /home/%%USERNAME%%/working
+   tar xvzf /mnt/cdrom/VMwareTools-9.2.2-893683.tar.gz -C /home/%%USERNAME%%/working/
+   cd /home/%%USERNAME%%/working/vmware-tools-distrib
+   ./vmware-install.pl -d
+   # Should cleanup, but this works for now
 }
 
 # Install the virtualbox tools
